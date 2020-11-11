@@ -1,5 +1,9 @@
 import pygame
 from math import *
+import sys
+#References
+#https://pythonprogramming.net/pygame-start-menu-tutorial/
+
 colors = {
   '1': (146,60,63),
   '2': (233,70,63),
@@ -8,6 +12,8 @@ colors = {
   "\n": (0,0,0)
 }
 
+back = pygame.image.load('./images/main_menu.png')
+instrucciones = pygame.image.load('./images/instrucciones.jpg')
 wall1 = pygame.image.load('./images/wall1.png')
 wall2 = pygame.image.load('./images/wall2.png')
 wall3 = pygame.image.load('./images/wall3.png')
@@ -21,6 +27,8 @@ enemy3 = pygame.image.load('./images/sprite3.png')
 enemy4 = pygame.image.load('./images/sprite4.png')
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+
+player_hand = pygame.image.load('./images/player.png')
 textures = {
   "1":wall1,
   "2":wall2,
@@ -52,6 +60,118 @@ class Raycaster:
       "fov":pi/3
     }
 
+  def start_game(self):
+    # render loop
+    while True:
+      screen.fill((0, 0, 0))
+      d = 10
+      for e in pygame.event.get():
+        if e.type == pygame.QUIT or (e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE):
+          exit(0)
+        if e.type == pygame.KEYDOWN:
+          if e.key == pygame.K_LEFT:
+            r.player["a"] -= pi / 20
+
+          if e.key == pygame.K_RIGHT:
+            r.player["a"] += pi / 20
+
+          if e.key == pygame.K_UP:
+            r.player["x"] += int(d * cos(r.player["a"]))
+            r.player["y"] += int(d * sin(r.player["a"]))
+
+          if e.key == pygame.K_DOWN:
+            r.player["x"] -= int(d * cos(r.player["a"]))
+            r.player["y"] -= int(d * sin(r.player["a"]))
+
+      r.render()
+      pygame.display.flip()
+
+  def instructionsPage(self):
+    while True:
+      for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+          pygame.quit()
+          quit()
+
+      #Fonts --------------------
+      instruction_tittle = pygame.font.SysFont('gabriola', 50, True)
+      description = pygame.font.SysFont('couriernew',20, False,False)
+      option = pygame.font.SysFont('lucidasanstypewriter',15, False,False)
+
+      TextSurf, TextRect = self.text_objects("Instrucciones", instruction_tittle)
+      TextRect.center = (int(self.width / 2), int(self.height / 4))
+      screen.blit(TextSurf,TextRect)
+
+      TextSurf, TextRect = self.text_objects("Bienvenido! El objetivo del juego es llegar al tesoro de Drake.", description)
+      TextRect.center = (int(self.width / 2), int(self.height / 3))
+      screen.blit(TextSurf,TextRect)
+
+
+      TextSurf, TextRect = self.text_objects("Trata de no toparte con paredes o enemigos, de lo contrario",description)
+      TextRect.center = (int(self.width / 2), int(self.height / 2.5))
+      screen.blit(TextSurf,TextRect)
+
+      
+
+
+
+      pygame.display.update()
+      clock.tick(15)
+      screen.blit(instrucciones, (0, 0))
+
+
+
+  def text_objects(self, text, font):
+    textSurface = font.render(text, True, WHITE)
+    return textSurface, textSurface.get_rect()
+
+  def main_menu(self):
+    print(pygame.font.get_fonts())
+    intro = True
+    while intro:
+      for event in pygame.event.get():
+        if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+          exit(0)
+        if event.type == pygame.KEYDOWN:
+          if event.key == pygame.K_1:
+            self.start_game()
+          if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_2:
+              self.instructionsPage()
+            if event.type == pygame.K_3:
+              pass
+
+      #Fonts -----------------
+      tittle_font = pygame.font.SysFont('gabriola', 50, True)
+      instructions_font = pygame.font.SysFont('couriernew',25, False,False)
+      instruccions = pygame.font.SysFont('lucidasanstypewriter',15, False,False)
+      # -----------------------------
+      TextSurf, TextRect = self.text_objects("Unchart3d", tittle_font)
+      TextRect.center = (int(self.width / 5), int(self.height / 3))
+      screen.blit(TextSurf,TextRect)
+      # -----------------------------
+      TextSurf, TextRect = self.text_objects("Elige tu opcion", instructions_font)
+      TextRect.center = (int(self.width / 5), int(self.height / 2.4))
+      screen.blit(TextSurf,TextRect)
+      # -----------------------------
+      TextSurf, TextRect = self.text_objects("1. Empezar Juego", instruccions)
+      TextRect.center = (int(self.width / 5), int(self.height / 2))
+      screen.blit(TextSurf,TextRect)
+      # -----------------------------
+      TextSurf, TextRect = self.text_objects("2. Instrucciones", instruccions)
+      TextRect.center = (int(self.width / 5), int(self.height / 1.75))
+      screen.blit(TextSurf,TextRect)
+      # -----------------------------
+      TextSurf, TextRect = self.text_objects("3. Salir", instruccions)
+      TextRect.center = (int(self.width / 5), int(self.height / 1.58))
+      screen.blit(TextSurf,TextRect)
+      # -----------------------------
+      pygame.display.update()
+      clock.tick(15)
+      screen.blit(back, (0,0))
+      #print(pygame.font.get_fonts())
+
+
   def point(self, x, y, c):
     screen.set_at((x, y), c)
 
@@ -68,6 +188,15 @@ class Raycaster:
     with open(filename) as f:
       for line in f.readlines():
         self.map.append(list(line))
+
+  def draw_player(self, xi, yi, w=256, h=256):
+    for x in range(xi, xi + w):
+      for y in range(yi, yi + h):
+        tx = int((x - xi) * 32 / w)
+        ty = int((y - yi) * 32 / h)
+        c = player_hand.get_at((tx, ty))
+        if c != (152, 0, 136, 255):
+          self.point(x, y, c)
 
   def cast_ray(self, a):
     d = 0
@@ -94,6 +223,13 @@ class Raycaster:
       self.point(int(x), int(y), (255, 255, 255))
 
       d += 1
+
+
+  def win_action(self):
+    while True:
+      for event in pygame.event.get():
+        if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+          exit(0)
 
   def draw_stake(self, x, h, tx, texture):
     start = int(250 - h / 2)
@@ -128,6 +264,7 @@ class Raycaster:
       for y in range(0, self.height, self.blocksize):
         i = int(x / self.blocksize)
         j = int(y / self.blocksize)
+
         if self.map[j][i] != ' ':
           self.draw_rectangle(x, y, textures[self.map[j][i]])
 
@@ -150,35 +287,17 @@ class Raycaster:
       self.point(enemy["x"], enemy["y"], BLACK)
       self.draw_sprite(enemy)
 
+    self.draw_player(1000 - 256 - 128, 500 - 256)
 
+# ------------------------------------------------------------------------
 pygame.init()
 screen = pygame.display.set_mode((1000, 500))
+pygame.display.set_caption('Zaravala')
 r = Raycaster(screen)
+back = pygame.transform.scale(back, (r.width, r.height))
+instrucciones = pygame.transform.scale(instrucciones, (r.width, r.height))
 r.load_map('./level1.txt')
+clock = pygame.time.Clock()
+r.main_menu()
 
 
-# render loop
-while True:
-  screen.fill((0,0,0))
-  d = 10
-  for e in pygame.event.get():
-    if e.type == pygame.QUIT or (e.type==pygame.KEYDOWN and e.key == pygame.K_ESCAPE):
-      exit(0)
-    if e.type ==pygame.KEYDOWN:
-      if e.key == pygame.K_LEFT:
-        r.player["a"] -= pi/20
-
-      if e.key == pygame.K_RIGHT:
-        r.player["a"] += pi/20
-
-      if e.key == pygame.K_UP:
-        r.player["x"] += int(d*cos(r.player["a"]))
-        r.player["y"] += int(d * sin(r.player["a"]))
-
-      if e.key == pygame.K_DOWN:
-        r.player["x"] -= int(d*cos(r.player["a"]))
-        r.player["y"] -= int(d * sin(r.player["a"]))
-
-
-  r.render()
-  pygame.display.flip()
