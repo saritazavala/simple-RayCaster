@@ -113,7 +113,7 @@ class Raycaster:
       #Fonts --------------------
       instruction_tittle = pygame.font.SysFont('gabriola', 50, True)
       return_key = pygame.font.SysFont('gabriola', 25, True)
-      message = pygame.font.SysFont('inkfree',25, False, True)
+      message = pygame.font.SysFont('inkfree',35, False, True)
       description = pygame.font.SysFont('couriernew',20, False,False)
       option = pygame.font.SysFont('lucidasanstypewriter',15, False,False)
 
@@ -133,6 +133,11 @@ class Raycaster:
       TextSurf, TextRect = self.text_objects("Drake morirá y perderá su progreso",description)
       TextRect.center = (int(self.width / 2), int(self.height / 2.10))
       screen.blit(TextSurf,TextRect)
+
+      TextSurf, TextRect = self.text_objects("Controles: W A D S ",description)
+      TextRect.center = (int(self.width / 2), int(self.height / 1.75))
+      screen.blit(TextSurf,TextRect)
+
 
       TextSurf, TextRect = self.text_objects("Sic Parvis Magna", message)
       TextRect.center = (int(self.width / 1.5), int(self.height / 1.5))
