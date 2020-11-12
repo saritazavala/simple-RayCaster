@@ -14,12 +14,14 @@ colors = {
 
 back = pygame.image.load('./images/main_menu.png')
 instrucciones = pygame.image.load('./images/instrucciones.jpg')
-wall1 = pygame.image.load('./images/wall1.png')
-wall2 = pygame.image.load('./images/wall2.png')
-wall3 = pygame.image.load('./images/wall3.png')
+wall1 = pygame.image.load('./images/wallU1.jpg')
+wall2 = pygame.image.load('./images/wallU2.jpg')
+wall3 = pygame.image.load('./images/wallU3.png')
 wall4 = pygame.image.load('./images/wall4.png')
 wall5 = pygame.image.load('./images/wall5.png')
-
+end = pygame.image.load('./images/ptm.png')
+win = pygame.image.load('./images/win.gif')
+lose = pygame.image.load('./images/lose.jpg')
 #Enemies
 enemy1 = pygame.image.load('./images/sprite1.png')
 enemy2 = pygame.image.load('./images/sprite2.png')
@@ -35,7 +37,10 @@ textures = {
   "3":wall3,
   "4":wall4,
   "5":wall5,
+  "6": end
 }
+#Music
+
 
 enemies = [
   {
@@ -69,32 +74,45 @@ class Raycaster:
         if e.type == pygame.QUIT or (e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE):
           exit(0)
         if e.type == pygame.KEYDOWN:
-          if e.key == pygame.K_LEFT:
+          if e.key == pygame.K_a:
             r.player["a"] -= pi / 20
 
-          if e.key == pygame.K_RIGHT:
+          if e.key == pygame.K_d:
             r.player["a"] += pi / 20
 
-          if e.key == pygame.K_UP:
+          if e.key == pygame.K_w:
             r.player["x"] += int(d * cos(r.player["a"]))
             r.player["y"] += int(d * sin(r.player["a"]))
+            print(r.player["x"], r.player["y"])
 
-          if e.key == pygame.K_DOWN:
+          if e.key == pygame.K_s:
             r.player["x"] -= int(d * cos(r.player["a"]))
             r.player["y"] -= int(d * sin(r.player["a"]))
 
+          if (r.player["x"] > 360) and (r.player["y"] > 70):
+            self.win_action()
+
+          #Lose option in process
+          # if self
+
+#351 79
+      #360, 80
       r.render()
       pygame.display.flip()
 
   def instructionsPage(self):
     while True:
       for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-          pygame.quit()
-          quit()
+        if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE) or event.type == pygame.K_3:
+          exit(0)
+        if event.type == pygame.KEYDOWN:
+          if event.key == pygame.K_r:
+            self.main_menu()
 
       #Fonts --------------------
       instruction_tittle = pygame.font.SysFont('gabriola', 50, True)
+      return_key = pygame.font.SysFont('gabriola', 25, True)
+      message = pygame.font.SysFont('inkfree',25, False, True)
       description = pygame.font.SysFont('couriernew',20, False,False)
       option = pygame.font.SysFont('lucidasanstypewriter',15, False,False)
 
@@ -111,26 +129,40 @@ class Raycaster:
       TextRect.center = (int(self.width / 2), int(self.height / 2.5))
       screen.blit(TextSurf,TextRect)
 
-      
+      TextSurf, TextRect = self.text_objects("Drake morirá y perderá su progreso",description)
+      TextRect.center = (int(self.width / 2), int(self.height / 2.10))
+      screen.blit(TextSurf,TextRect)
 
+      TextSurf, TextRect = self.text_objects("Sic Parvis Magna", message)
+      TextRect.center = (int(self.width / 1.5), int(self.height / 1.5))
+      screen.blit(TextSurf,TextRect)
 
+      TextSurf, TextRect = self.text_objects("Presiona R para regresar", return_key)
+      TextRect.center = (int(self.width / 4), int(self.height / 1.5))
+      screen.blit(TextSurf,TextRect)
 
       pygame.display.update()
       clock.tick(15)
       screen.blit(instrucciones, (0, 0))
 
 
-
   def text_objects(self, text, font):
     textSurface = font.render(text, True, WHITE)
     return textSurface, textSurface.get_rect()
 
+  def main_menu_sound(self):
+    pygame.mixer.music.load('./music/A Thiefs End.mp3')
+    pygame.mixer.music.set_volume(0.2)
+    pygame.mixer.music.play(0)
+
+
   def main_menu(self):
+    self.main_menu_sound()
     print(pygame.font.get_fonts())
     intro = True
     while intro:
       for event in pygame.event.get():
-        if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+        if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE) or event.type == pygame.K_3:
           exit(0)
         if event.type == pygame.KEYDOWN:
           if event.key == pygame.K_1:
@@ -139,7 +171,7 @@ class Raycaster:
             if event.key == pygame.K_2:
               self.instructionsPage()
             if event.type == pygame.K_3:
-              pass
+              exit(0)
 
       #Fonts -----------------
       tittle_font = pygame.font.SysFont('gabriola', 50, True)
@@ -204,8 +236,8 @@ class Raycaster:
       x = self.player["x"] + d*cos(a)
       y = self.player["y"] + d*sin(a)
 
-      i = int(x/50)
-      j = int(y/50)
+      i = int(x / self.blocksize)
+      j = int(y / self.blocksize)
 
       if self.map[j][i] != ' ':
         hitx = x - i*50
@@ -221,15 +253,39 @@ class Raycaster:
         return d, self.map[j][i], tx
 
       self.point(int(x), int(y), (255, 255, 255))
-
       d += 1
 
 
   def win_action(self):
     while True:
-      for event in pygame.event.get():
-        if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+      for e in pygame.event.get():
+        if e.type == pygame.QUIT or (e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE):
           exit(0)
+        if e.type == pygame.KEYDOWN:
+          if e.key == pygame.K_0:
+            intro = False
+            self.main_menu()
+
+      congrats_message = pygame.font.SysFont('erasitc', 50, False)
+      TextSurf, TextRect = self.text_objects("Hemos ganado!", congrats_message)
+      TextRect.center = (int(self.width / 1.25), int(self.height /3))
+      screen.blit(TextSurf,TextRect)
+
+      pygame.display.update()
+      clock.tick(15)
+      screen.blit(win, (0, 0))
+
+  def lose_action(self):
+    while True:
+      for e in pygame.event.get():
+        if e.type == pygame.QUIT or (e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE):
+          exit(0)
+
+      pygame.display.update()
+      clock.tick(15)
+      screen.blit(lose, (0, 0))
+
+
 
   def draw_stake(self, x, h, tx, texture):
     start = int(250 - h / 2)
@@ -295,6 +351,8 @@ screen = pygame.display.set_mode((1000, 500))
 pygame.display.set_caption('Zaravala')
 r = Raycaster(screen)
 back = pygame.transform.scale(back, (r.width, r.height))
+win = pygame.transform.scale(win, (r.width, r.height))
+lose = pygame.transform.scale(lose, (r.width, r.height))
 instrucciones = pygame.transform.scale(instrucciones, (r.width, r.height))
 r.load_map('./level1.txt')
 clock = pygame.time.Clock()
