@@ -95,9 +95,10 @@ class Raycaster:
           #Lose option in process
           # if self
 
-#351 79
+      #351 79
       #360, 80
       r.render()
+      screen.blit(self.update_fps(), (10, 0))
       pygame.display.flip()
 
   def instructionsPage(self):
@@ -344,6 +345,12 @@ class Raycaster:
       self.draw_sprite(enemy)
 
     self.draw_player(1000 - 256 - 128, 500 - 256)
+
+  def update_fps(self):
+    font = pygame.font.SysFont("erasitc", 25, True)
+    fps = "FPS: " + str(int(clock.get_fps()))
+    fps_text = font.render(fps, 1, pygame.Color("white"))
+    return fps_text
 
 # ------------------------------------------------------------------------
 pygame.init()
