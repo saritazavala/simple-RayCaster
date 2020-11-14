@@ -182,7 +182,7 @@ class Raycaster:
     def main_menu_sound(self):
         pygame.mixer.music.load('./music/A Thiefs End.mp3')
         pygame.mixer.music.set_volume(0.2)
-        pygame.mixer.music.play(0)
+        pygame.mixer.music.play(-1)
 
     def main_menu(self):
         self.main_menu_sound()
