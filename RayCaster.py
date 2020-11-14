@@ -111,7 +111,7 @@ class Raycaster:
                         r.player["x"] -= int(d * cos(r.player["a"]))
                         r.player["y"] -= int(d * sin(r.player["a"]))
 
-                    if (r.player["x"] == 368) and (r.player["y"] > 72):
+                    if (r.player["x"] > 394) and (r.player["y"] > 70):
                         self.win_action()
 
                     # Lose option in process
